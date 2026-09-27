@@ -1,8 +1,8 @@
 public class Student {
-    String name;
-    int session, roll;
+    String name, session;
+    int roll;
 
-    public Student(String name, int roll, int session){
+    public Student(String name, int roll, String session){
         this.name = name;
         this.roll = roll;
         this.session = session;
