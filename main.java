@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Map;
@@ -6,6 +7,31 @@ import java.util.Scanner;
 public  class  main{
     public static Scanner input = new Scanner(System.in);
     public static Map<Integer, Student> studentList = new HashMap<>();
+    private static final String FILE_NAME = "students.ser";
+
+    public static void loadDataFromFile() {
+        File file = new File(FILE_NAME);
+        if (!file.exists()) {
+            return; 
+        }
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            studentList = (Map<Integer, Student>) ois.readObject();
+            System.out.println("Loaded " + studentList.size() + " student record(s) from disk.");
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Error loading saved student data: " + e.getMessage());
+        }
+    }
+
+
+    public static void saveDataToFile() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
+            oos.writeObject(studentList);
+            System.out.println("Data saved successfully.");
+        } catch (IOException e) {
+            System.out.println("Error saving student data: " + e.getMessage());
+        }
+    }
 
     public static int validRoll(){
         while(true){
@@ -90,6 +116,7 @@ public  class  main{
         
         Student student  = new Student(name, roll, session); 
         studentList.put(roll, student);
+        saveDataToFile();
         ShowByRoll(roll);
     }
 
@@ -116,10 +143,12 @@ public  class  main{
 
         Student student  = new Student(name, roll, session); 
         studentList.put(roll, student);
+        saveDataToFile();
         System.out.println("Student details updated.");
     }
     
     public static void main(String[] args) {
+        loadDataFromFile(); 
         while(true){
             System.out.println("Welcome to student Portal:\n Enter the command\n1 -> Add student details\n2 -> Find Student\n3 -> Show all student list\n4 -> Delete Student\n5 -> Update Student\n6 -> Exit ");
             
@@ -145,6 +174,7 @@ public  class  main{
                 int roll = validRoll();
                 if(studentList.containsKey(roll)){
                     studentList.remove(roll);
+                    saveDataToFile();
                     System.out.println("Student with Roll " + roll + " deleted.");
                 }else{
                     System.out.println("Student with Roll " + roll + " not found.");
@@ -160,6 +190,7 @@ public  class  main{
                     System.out.println("Student with Roll " + roll + " not found.");
                 }
             } else if(operation == 6) {
+                saveDataToFile();
                 System.out.println("Exiting the program. Goodbye!");
                 break;
             }
